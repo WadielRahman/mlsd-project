@@ -1,0 +1,94 @@
+schema: '2.0'
+stages:
+  split:
+    cmd: python src/split.py data/titanic.csv data/interim
+    deps:
+    - path: data/titanic.csv
+      hash: md5
+      md5: 2309cc5f04782ed9bb6016d9f4e381cf
+      size: 61194
+    - path: src/split.py
+      hash: md5
+      md5: 1c17d8349e52db531bcb41246482d66b
+      size: 961
+    params:
+      params.yaml:
+        split:
+          test_size: 0.2
+          random_state: 42
+    outs:
+    - path: data/interim/test.csv
+      hash: md5
+      md5: 5f3d2ff4714ce431e436c38281593e98
+      size: 11998
+    - path: data/interim/train.csv
+      hash: md5
+      md5: ad1ffe97f3f19954a409f48cb16317e9
+      size: 47497
+  train:
+    cmd: python src/train.py data/prepared/train.csv models/model.joblib
+    deps:
+    - path: data/prepared/train.csv
+      hash: md5
+      md5: 57bf168b899ab222d959a9d3f28093eb
+      size: 24382
+    - path: src/train.py
+      hash: md5
+      md5: 2886449c4e7abe082f21e7ac93429cdd
+      size: 944
+    params:
+      params.yaml:
+        train:
+          n_estimators: 100
+          max_depth: 12
+          random_state: 42
+    outs:
+    - path: models/model.joblib
+      hash: md5
+      md5: d1a89518a0062b7e62d6fda60dc14f88
+      size: 2024985
+  evaluate:
+    cmd: python src/evaluate.py models/model.joblib data/prepared/test.csv 
+      metrics/metrics.json
+    deps:
+    - path: data/prepared/test.csv
+      hash: md5
+      md5: adffd9fd1f4b9dd0858c99e0f356b1d8
+      size: 6173
+    - path: models/model.joblib
+      hash: md5
+      md5: d1a89518a0062b7e62d6fda60dc14f88
+      size: 2024985
+    - path: src/evaluate.py
+      hash: md5
+      md5: dcfd9316611f0b0df5cb56f5c696fe57
+      size: 921
+    outs:
+    - path: metrics/metrics.json
+      hash: md5
+      md5: b7a9ef509957795919ef3b40cd8cfac5
+      size: 135
+  preprocess:
+    cmd: python src/preprocess.py data/interim data/prepared
+    deps:
+    - path: data/interim/test.csv
+      hash: md5
+      md5: 5f3d2ff4714ce431e436c38281593e98
+      size: 11998
+    - path: data/interim/train.csv
+      hash: md5
+      md5: ad1ffe97f3f19954a409f48cb16317e9
+      size: 47497
+    - path: src/preprocess.py
+      hash: md5
+      md5: d25ad3cf1fc332c301921ba10b8a7e6f
+      size: 2016
+    outs:
+    - path: data/prepared/test.csv
+      hash: md5
+      md5: adffd9fd1f4b9dd0858c99e0f356b1d8
+      size: 6173
+    - path: data/prepared/train.csv
+      hash: md5
+      md5: 57bf168b899ab222d959a9d3f28093eb
+      size: 24382

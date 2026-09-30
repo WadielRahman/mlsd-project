@@ -1,0 +1,41 @@
+stages:
+  split:
+    cmd: python src/split.py data/titanic.csv data/interim
+    deps:
+      - src/split.py
+      - data/titanic.csv
+    params:
+      - split
+    outs:
+      - data/interim/train.csv
+      - data/interim/test.csv
+
+  preprocess:
+    cmd: python src/preprocess.py data/interim data/prepared
+    deps:
+      - src/preprocess.py
+      - data/interim/train.csv
+      - data/interim/test.csv
+    outs:
+      - data/prepared/train.csv
+      - data/prepared/test.csv
+
+  train:
+    cmd: python src/train.py data/prepared/train.csv models/model.joblib
+    deps:
+      - src/train.py
+      - data/prepared/train.csv
+    params:
+      - train
+    outs:
+      - models/model.joblib
+
+  evaluate:
+    cmd: python src/evaluate.py models/model.joblib data/prepared/test.csv metrics/metrics.json
+    deps:
+      - src/evaluate.py
+      - models/model.joblib
+      - data/prepared/test.csv
+    metrics:
+      - metrics/metrics.json:
+          cache: false
